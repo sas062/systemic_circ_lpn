@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.sparse import csr_matrix
+from scipy.sparse import diags
 
 class Network:
     def __init__(self, vessels, inlet, outlet):
@@ -30,7 +31,7 @@ class Network:
 
         B = csr_matrix((data, (rows, cols)), shape=(n,m))
         
-        G = csr_matrix(np.diag(1.0 / np.array([v.R for v in self.vessels])))
+        G = diags(1.0 / np.array([v.R for v in self.vessels]))
 
         A = B @ G @ B.T
 

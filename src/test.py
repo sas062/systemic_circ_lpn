@@ -1,6 +1,8 @@
 from network import Network
 from vessel import Vessel
+from gmres import gmres
 import numpy as np
+from scipy import linalg
 
 # Define vessels
 
@@ -45,4 +47,10 @@ for name in network.nodes:
     ind = network.node_ind[name]
     print(f"{name:6s}: {x[ind]: .6f}")
 
-print("residual norm:", np.linalg.norm(A @ x - b))
+print("residual norm direct:", np.linalg.norm(A @ x - b))
+
+# GMRES
+x_gmres, i = gmres(A,b, 1e-15, 50)
+print("residual norm GMRES:", linalg.norm(A @ x_gmres - b))
+print("residual norm GMRES, inf:", linalg.norm(A @ x_gmres - b,np.inf))
+print("GMRES convergence iteration:", i)
