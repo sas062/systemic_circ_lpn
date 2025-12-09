@@ -1,6 +1,8 @@
 from network import Network
 from vessel import Vessel
 from gmres import gmres
+from bcg  import bcg
+from bicgstab import bicgstab
 import numpy as np
 from scipy import linalg
 
@@ -54,3 +56,15 @@ x_gmres, i = gmres(A,b, 1e-15, 50)
 print("residual norm GMRES:", linalg.norm(A @ x_gmres - b))
 print("residual norm GMRES, inf:", linalg.norm(A @ x_gmres - b,np.inf))
 print("GMRES convergence iteration:", i)
+
+# BCG
+x_bcg, i = bcg(A,b, 1e-15, 50)
+print("residual norm BCG:", linalg.norm(A @ x_bcg - b))
+print("residual norm BCG, inf:", linalg.norm(A @ x_bcg - b,np.inf))
+print("BCG convergence iteration:", i)
+
+# BiCGStab
+x_bicgstab, i = bicgstab(A,b, 1e-15, 50)
+print("residual norm BiCGStab:", linalg.norm(A @ x_bicgstab - b))
+print("residual norm BiCGStab, inf:", linalg.norm(A @ x_bicgstab - b,np.inf))
+print("BiCGStab convergence iteration:", i)
