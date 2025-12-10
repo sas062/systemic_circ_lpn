@@ -3,6 +3,7 @@ from vessel import Vessel
 from gmres import gmres
 from bcg  import bcg
 from bicgstab import bicgstab
+# from visualize import plot_residuals
 import numpy as np
 from scipy import linalg
 
@@ -76,18 +77,19 @@ print("A shape: ", A.shape)
 print("b: ", b)
 
 # quick direct solve to sanity-check
-x = np.linalg.solve(A.toarray(), b)
+x_direct = np.linalg.solve(A.toarray(), b)
+direct_norm = np.linalg.norm(A @ x_direct - b)
 
 for name in network.nodes:
     ind = network.node_ind[name]
-    print(f"{name:6s}: {x[ind]: .6f}")
+    print(f"{name:6s}: {x_direct[ind]: .6f}")
 
-print("residual norm direct:", np.linalg.norm(A @ x - b))
-print("residual norm direct, inf:", np.linalg.norm(A @ x - b,np.inf))
+print("residual norm direct:", direct_norm)
+print("residual norm direct, inf:", np.linalg.norm(A @ x_direct - b,np.inf))
 print("----------------------------------------------------------")
 
 # GMRES
-x_gmres, i = gmres(A,b, 1e-15, 50)
+x_gmres, i, residuals_gmres = gmres(A,b, 1e-15, 50)
 print("residual norm GMRES:", linalg.norm(A @ x_gmres - b))
 print("residual norm GMRES, inf:", linalg.norm(A @ x_gmres - b,np.inf))
 print("GMRES convergence iteration:", i)
@@ -95,7 +97,7 @@ print("----------------------------------------------------------")
 
 
 # BCG
-x_bcg, i = bcg(A,b, 1e-15, 50)
+x_bcg, i, residuals_bcg = bcg(A,b, 1e-15, 50)
 print("residual norm BCG:", linalg.norm(A @ x_bcg - b))
 print("residual norm BCG, inf:", linalg.norm(A @ x_bcg - b,np.inf))
 print("BCG convergence iteration:", i)
@@ -103,8 +105,10 @@ print("----------------------------------------------------------")
 
 
 # BiCGStab
-x_bicgstab, i = bicgstab(A,b, 1e-15, 50)
+x_bicgstab, i, residuals_bicgstab = bicgstab(A,b, 1e-15, 50)
 print("residual norm BiCGStab:", linalg.norm(A @ x_bicgstab - b))
 print("residual norm BiCGStab, inf:", linalg.norm(A @ x_bicgstab - b,np.inf))
 print("BiCGStab convergence iteration:", i)
 print("----------------------------------------------------------")
+
+# plot_residuals(residuals_gmres, residuals_bcg, residuals_bicgstab, direct_norm)

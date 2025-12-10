@@ -1,20 +1,24 @@
 from scipy import linalg
 import numpy as np
 
-def gmres(A, b, tol = 1e-10, max_iters = 50):
+def gmres(A, b, tol = 1e-10, max_iters = 50, return_residuals=True):
     n = len(b)
     x = np.zeros(n)
 
     Q = np.zeros((n, max_iters+1))
     H = np.zeros((max_iters+1,max_iters))
     
+    residuals = []
+
+    k = 0
     
     for i in range(max_iters):
         r = b - A @ x
+        residuals.append(linalg.norm(r))
 
-        if linalg.norm(r) < tol:
-            iters = i
-            return x, i
+        if residuals[-1] < tol:
+            k = i + 1
+            break
         
         if i == 0:
             Q[:, i] = r / linalg.norm(r)
@@ -42,4 +46,7 @@ def gmres(A, b, tol = 1e-10, max_iters = 50):
 
         x = Q[:,:k] @ y
 
-    return x, max_iters
+    if return_residuals:
+        return x, k, residuals
+    else:
+        return x, k

@@ -1,10 +1,12 @@
 from scipy import linalg
 import numpy as np
 
-def bcg(A, b, tol = 1e-10, max_iters = 50):
+def bcg(A, b, tol = 1e-10, max_iters = 50, return_residuals=True):
     n = len(b)
     x = np.zeros(n)
     r = b - A @ x
+    residuals = [linalg.norm(r)]
+    iters = 0
 
     s = r.copy()
     p = r.copy()
@@ -21,8 +23,11 @@ def bcg(A, b, tol = 1e-10, max_iters = 50):
         r -= alpha * A @ p
         s -= alpha.conjugate() * A.T @ q
 
-        if linalg.norm(r) < tol:
-            return x, k+1
+        residuals.append(linalg.norm(r))
+
+        if residuals[-1] < tol:
+            iters = k + 1
+            break
 
         sr_new = s @ r
         beta = sr_new / sr_old
@@ -31,5 +36,8 @@ def bcg(A, b, tol = 1e-10, max_iters = 50):
         q = s + beta.conjugate() * q
 
         sr_old = sr_new
-    
-    return x, max_iters
+        
+    if return_residuals:
+        return x, iters, residuals
+    else:
+        return x, max_iters
