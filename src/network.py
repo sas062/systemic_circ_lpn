@@ -1,6 +1,5 @@
 import numpy as np
-from scipy.sparse import csr_matrix
-from scipy.sparse import diags
+from scipy.sparse import csr_matrix, diags
 
 class Network:
     def __init__(self, vessels, inlet, outlet):
@@ -37,6 +36,12 @@ class Network:
 
         b = np.zeros(n)
         b[self.node_ind[self.inlet]] = Qin
-        b[self.node_ind[self.outlet]] = -Qin
+        b[self.node_ind[self.outlet]] = 0.0
+
+        drain_ind = self.node_ind[self.outlet]
+        A = A.tolil()
+        A[drain_ind, :] = 0
+        A[drain_ind, drain_ind] = 1.0
+        A = A.tocsr()
 
         return A, b
