@@ -1,0 +1,81 @@
+import pandas as pd
+import numpy as np
+import time
+from visualize import plot_performance_vs_Qin
+from network import Network
+from gmres import gmres
+from bcg import bcg
+from bicgstab import bicgstab
+
+tol = 1e-15
+max_iters = 100
+Qin_vals = list(np.linspace(1.0, 200.0, 20))
+
+rows = []
+
+for Qin in Qin_vals:
+    A, b = Network.initialize_network(Qin=Qin)
+
+    # direct
+    start = time.perf_counter()
+    x_direct = np.linalg.solve(A.toarray(), b)
+    dtime = time.perf_counter() - start
+    dnorm = np.linalg.norm(A @ x_direct - b)
+
+    rows.append({
+        "solver": "direct",
+        "Qin": Qin,
+        "iterations": 0,
+        "time": dtime,
+        "residual_norm": dnorm
+    })
+
+    # gmres
+    start = time.perf_counter()
+    x_gmres, it_gmres, res_gmres = gmres(A, b, tol, max_iters)
+    gtime = time.perf_counter() - start
+    gnorm = np.linalg.norm(A @ x_gmres - b)
+
+    rows.append({
+        "solver": "gmres",
+        "Qin": Qin,
+        "iterations": it_gmres,
+        "time": gtime,
+        "residual_norm": gnorm
+    })
+
+    # bcg
+    start = time.perf_counter()
+    x_bcg, it_bcg, res_bcg = bcg(A, b, tol, max_iters)
+    btime = time.perf_counter() - start
+    bnorm = np.linalg.norm(A @ x_bcg - b)
+
+    rows.append({
+        "solver": "bcg",
+        "Qin": Qin,
+        "iterations": it_bcg,
+        "time": btime,
+        "residual_norm": bnorm
+    })
+
+    # bicgstab
+    start = time.perf_counter()
+    x_bis, it_bis, res_bis = bicgstab(A, b, tol, max_iters)
+    bistime = time.perf_counter() - start
+    bisnorm = np.linalg.norm(A @ x_bis - b)
+
+    rows.append({
+        "solver": "bicgstab",
+        "Qin": Qin,
+        "iterations": it_bis,
+        "time": bistime,
+        "residual_norm": bisnorm
+    })
+
+# =====================================================
+results_df = pd.DataFrame(rows)
+results_df.to_csv("solver_results.csv", index=False)
+
+print("\nSaved results to solver_results.csv")
+
+plot_performance_vs_Qin(results_df)
