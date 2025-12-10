@@ -33,6 +33,7 @@ def gmres(A, b, tol = 1e-10, max_iters = 50, return_residuals=True):
 
         # Breakdown check
         if H[i+1,i] == 0:
+            k = -1
             break
 
         Q[:, i+1] = v / H[i+1,i]
