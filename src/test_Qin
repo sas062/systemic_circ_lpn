@@ -9,7 +9,7 @@ from bicgstab import bicgstab
 
 tol = 1e-15
 max_iters = 100
-Qin_vals = list(np.linspace(1.0, 200.0, 20))
+Qin_vals = list(np.linspace(1.0, 20.0, 200))
 
 rows = []
 
